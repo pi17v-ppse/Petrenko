@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="description" content="tchesa/snake">
+		<meta name="keywords" content="Snake, game, javascript, jquery, html">
+		<title>DimaPetrenkoA_Snake</title>
+		<link rel="shortcut icon" type="image/png" href="favicon.png"/>
+		<link href="style.css" rel="stylesheet">
+		<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+	</head>
+	<body>
+		<div class="center">
+			<div class="cell">
+				<div id="table">
+					<div id="snake"></div>
+				</div><div id="board">
+					<span class="score">Счёт</span>
+					<span class="score" id="score"></span>
+					<span class="score">Высокий балл</span>
+					<span class="score" id="hi-score"></span>
+					<span class="score" id="gameover">Игра окончена</span>
+					<button onclick="init()" id="start">Начните</button>
+					<span class="score">Уровень</span>
+					<span class="score" id="level"></span>
+					<div class="footer">
+						<div class="tools">
+							<img src="img/javascript.png">
+							<img src="img/css3.png">
+							<img src="img/jquery.png">
+						</div>
+						<a href="https://github.com/DimaPetrenkoA" target="_blank">
+							<img src="img/github.svg">DimaPetrenkoA
+						</a>
+					</div>
+				</div>
+			</div>
+			<span style="font-family: 'Bistream Vera'; font-weight: bold; opacity: 0"></span>
+		</div>
+
+		<script type="text/javascript" src="js/game.js"></script>
+	</body>
+</html>
