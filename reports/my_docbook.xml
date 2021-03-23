@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model href="http://docbook.org/xml/5.1/rng/docbook.rng" schematypens="http://relaxng.org/ns/structure/1.0"?>
+<?xml-model href="http://docbook.org/xml/5.1/sch/docbook.sch" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+<article xmlns="http://docbook.org/ns/docbook"
+    xmlns:xlink="http://www.w3.org/1999/xlink" version="5.1">
+    <info>
+		<title>Документация к проекту "Snake"</title>
+		<author>
+			<personname>
+				<firstname>Дмитрий</firstname>
+				<surname>Петренко</surname>
+			</personname>
+		</author>
+		<copyright>
+			<year>2021</year>
+			<holder>Дмитрий Петренко</holder>
+		</copyright>
+	</info>
+    <chapter>
+        <title>Описание проекта</title>
+		<para><emphasis role="bold">Snake</emphasis> (<emphasis role="bold">Питон</emphasis>,
+				<emphasis role="bold">Удав</emphasis>, <emphasis role="bold">Змейка</emphasis> и
+			др.) — <link
+				xlink:href="https://ru.wikipedia.org/wiki/%D0%9A%D0%BE%D0%BC%D0%BF%D1%8C%D1%8E%D1%82%D0%B5%D1%80%D0%BD%D0%B0%D1%8F_%D0%B8%D0%B3%D1%80%D0%B0"
+				>компьютерная игра</link>, впервые появившаяся в кнопочном телефоне <link
+				xlink:href="https://ru.wikipedia.org/wiki/Nokia_6610i">Nokia 6110</link>.
+			Разработана финляндским разработчиком Танели Арманто и выпущена компанией <link
+				xlink:href="https://ru.wikipedia.org/wiki/Nokia">Nokia</link>. </para>
+		<para>Игрок управляет длинным, тонким существом, напоминающим <link
+				xlink:href="https://ru.wikipedia.org/wiki/%D0%97%D0%BC%D0%B5%D1%8F">змею</link>,
+			которое ползает по <link
+				xlink:href="https://ru.wikipedia.org/wiki/%D0%9F%D0%BB%D0%BE%D1%81%D0%BA%D0%BE%D1%81%D1%82%D1%8C_(%D0%B3%D0%B5%D0%BE%D0%BC%D0%B5%D1%82%D1%80%D0%B8%D1%8F)"
+				>плоскости</link> (как правило, ограниченной стенками), собирая еду (или другие
+			предметы), избегая столкновения с собственным хвостом и краями игрового поля. Каждый
+			раз, когда змея съедает кусок пищи, она становится длиннее, что постепенно усложняет
+			игру.</para>
+		<para>Данный проект представляет собой игру основаную на основании игры Snake, только в web
+			интерфейсе.</para>
+    </chapter>
+    <chapter>
+        <title>Детали реализации</title>
+        <para>Особенности реализации отдельного функционала представлены ниже:</para>
+        <section>
+            <title>Функция "Render"</title>
+            <para>Нарисуем змейку</para>
+            <example>
+                <programlisting><![CDATA[
+  function render() {
+	$("#snake").find(".piece").remove();
+	for (var i = 0; i < snake.length; i++) {
+		$("<img>", {
+			'class': "piece",
+			css: {
+				"left": snake[i].x*pieceSize,
+				"top": snake[i].y*pieceSize
+			},
+			src: "img/dark.png"
+		}).appendTo($("#snake"));
+	}
+}
+                ]]></programlisting>
+            </example>
+        </section>
+        <section>
+            <title>Функция "nextFruit"</title>
+            <para>Создаёт новый фрукт на поле</para>
+            <example>
+                <programlisting><![CDATA[function nextFruit() {
+	$("#fruit").remove();
+	var collision;
+	do {
+		collision = false;
+		fruit = new pair(Math.floor((Math.random()*tabSize.x)), Math.floor((Math.random()*tabSize.y))); // generate next fruit position
+		for (var i = 0; !collision && i < snake.length; i++) { // check if next fruit position is in the snake
+			collision = (fruit.x == snake[i].x && fruit.y == snake[i].y);
+		}
+	} while (collision); // while the next position is valid
+
+	// create fruit element
+	$("<img>", {
+		"id": "fruit",
+		css: {
+			"left": fruit.x*pieceSize,
+			"top": fruit.y*pieceSize
+		},
+		src: "img/dark.png"
+	}).appendTo($("#table"));
+}
+                ]]></programlisting>
+            </example>
+        </section>
+        <section>
+            <title>Функция "Move"</title>
+            <para>Задаёт передвижение змейки</para>
+            <example>
+                <programlisting><![CDATA[
+function move() {
+	// get new snake fragment position
+	var next = new pair(snake[0].x, snake[0].y);
+	dir = nextDir;
+	switch (dir) {
+		case 'r': next.translate(1,0); break;
+		case 'l': next.translate(-1,0); break;
+		case 'u': next.translate(0, -1); break;
+		case 'd': next.translate(0, 1); break;
+		default: break;
+	}
+	next.x = (next.x+tabSize.x)%tabSize.x;
+	next.y = (next.y+tabSize.y)%tabSize.y;
+
+	if (next.x == fruit.x && next.y == fruit.y) { // take fruit
+		score++; // increment score
+		$("#score").text(formatScore(score));
+		if (score > hiscore) { // updates the hiscore
+			hiscore = score;
+			localStorage.setItem("hiscore", hiscore);
+			$("#hi-score").text(formatScore(hiscore));
+		}
+
+		// updates the level
+		level = Math.floor(score/5)+1;
+		$("#level").text(level);
+
+		nextFruit(); // instantiate another fruit
+	} else {
+		snake.pop(); // removes the last snake fragment
+	}
+
+	// detect colision
+	var collision = false;
+	for (var i = 0; !collision && i < snake.length; i++) {
+		if (next.x == snake[i].x && next.y == snake[i].y) {
+			collision = true;
+		}
+	}
+
+	snake.unshift(next); // add the new snake fragment
+
+	render(); // updates snake render
+	if(collision) { // game over
+		$("#gameover").css("color", "black");
+		$("#start").prop("disabled", false);
+	} else {
+		setTimeout(move, speed/level); // next movement step
+	}
+}
+                ]]></programlisting>
+            </example>
+        </section>
+    </chapter>
+</article>
